@@ -1163,60 +1163,108 @@
         }
       }
 
-      // Get hamburger elements
-      const hamburger = document.querySelector('.hamburger');
-      const navMenu = document.querySelector('.nav-menu');
-      
-      console.log('Elements found:', {
-        hamburger: hamburger,
-        navMenu: navMenu
-      });
-
-      if (hamburger && navMenu) {
-        console.log('Setting up hamburger click listener');
+      // Enhanced Hamburger Menu Setup
+      function setupHamburgerMenu() {
+        console.log('🍔 Setting up hamburger menu...');
         
-        hamburger.addEventListener('click', function() {
-          console.log('Hamburger clicked!');
+        // Wait a bit more to ensure all elements are rendered
+        setTimeout(() => {
+          const hamburger = document.querySelector('.hamburger');
+          const navMenu = document.querySelector('.nav-menu');
           
-          // Toggle active class on both elements
-          hamburger.classList.toggle('active');
-          navMenu.classList.toggle('active');
-          
-          console.log('Classes toggled:', {
-            hamburgerActive: hamburger.classList.contains('active'),
-            navMenuActive: navMenu.classList.contains('active')
+          console.log('🔍 Elements found:', {
+            hamburger: !!hamburger,
+            navMenu: !!navMenu,
+            hamburgerVisible: hamburger ? window.getComputedStyle(hamburger).display : 'N/A'
           });
-          
-          // Prevent body scroll when menu is open
-          if (navMenu.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
+
+          if (hamburger && navMenu) {
+            console.log('✅ Setting up hamburger click listeners');
+            
+            // Make sure hamburger is clickable
+            hamburger.style.pointerEvents = 'auto';
+            hamburger.style.cursor = 'pointer';
+            hamburger.style.userSelect = 'none';
+            hamburger.style.webkitUserSelect = 'none';
+            hamburger.style.webkitTapHighlightColor = 'transparent';
+            
+            // Function to toggle menu
+            function toggleMenu(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              console.log('🍔 Hamburger clicked!');
+              
+              const isActive = hamburger.classList.contains('active');
+              
+              if (isActive) {
+                // Close menu
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+                console.log('📱 Menu closed');
+              } else {
+                // Open menu
+                hamburger.classList.add('active');
+                navMenu.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                console.log('📱 Menu opened');
+              }
+            }
+            
+            // Add multiple event types for better mobile support
+            hamburger.addEventListener('click', toggleMenu);
+            hamburger.addEventListener('touchstart', toggleMenu, { passive: false });
+            
+            // Also add click to individual bars for better hit area
+            const bars = hamburger.querySelectorAll('.bar, span');
+            bars.forEach(bar => {
+              bar.style.pointerEvents = 'none'; // Let parent handle clicks
+            });
+
+            // Close menu when clicking on nav links
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            navLinks.forEach(function(link) {
+              link.addEventListener('click', function() {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+                console.log('🔗 Menu closed after link click');
+              });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+              if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+              }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+              if (window.innerWidth > 768) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+              }
+            });
+            
+            console.log('✅ Hamburger menu setup complete');
+            
           } else {
-            document.body.style.overflow = '';
+            console.error('❌ Hamburger or nav menu not found!');
+            console.log('Available elements:', {
+              allHamburgers: document.querySelectorAll('.hamburger').length,
+              allNavMenus: document.querySelectorAll('.nav-menu').length
+            });
           }
-        });
-
-        // Close menu when clicking on nav links
-        const navLinks = document.querySelectorAll('.nav-menu a');
-        navLinks.forEach(function(link) {
-          link.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
-            document.body.style.overflow = '';
-          });
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-          if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
-            document.body.style.overflow = '';
-          }
-        });
-        
-      } else {
-        console.error('Hamburger or nav menu not found!');
+        }, 200);
       }
+      
+      // Call the setup function
+      setupHamburgerMenu();
     });
     </script>
 </body>
